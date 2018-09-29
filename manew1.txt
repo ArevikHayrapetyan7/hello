@@ -1,0 +1,70 @@
+enteer macro
+	push ax dx
+	mov ah,9
+	lea dx,entr
+	int 21h
+	pop dx ax
+	endm
+stac segment  'stack' stack
+	db 512 dup(?)
+stac ends
+data segment 
+	entr db 10,13,'$'
+	a db 3 dup(3 dup(?))
+	data ends
+cod segment
+	assume cs:cod,ds:data,ss:stac
+	main proc far 
+	push ds 
+	xor ax,ax
+	push ax
+	mov ax,data
+   	mov ds,ax
+	mov ah,1
+	
+	mov ah,1
+	mov cx,3
+	xor bx,bx
+x1:	xor si,si
+	push cx
+	mov cx,3
+x2:	int 21h
+	mov a[bx][si],al
+	inc si
+	loop x2
+	enteer
+	pop cx
+	add bx,si
+	loop x1
+	mov bx,1
+	xor si,si
+	mov ax,3
+	mul bx
+	xor ah,ah
+	add ax,si
+	shl ax,1
+	mov di,ax
+	xor ah,ah
+	mov al,a[di]
+	
+	cmp ax,0 
+	jne no 
+	inc dh
+
+no :	inc si
+	cmp si,bx
+	jb x2
+	inc bx
+	cmp bx,3
+	jb x1
+
+	xor dl,dl
+	mov ah,2
+	mov dl,dh
+	add dl,'0'
+	int 21h
+	
+	cod ends
+	end main
+
+	
